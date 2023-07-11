@@ -1,0 +1,45 @@
+{
+  "name": "provita",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "devStart": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarwanRadwan7/provita.git"
+  },
+  "keywords": [
+    "nodejs",
+    "discordjs"
+  ],
+  "author": "Marwan Radwan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MarwanRadwan7/provita/issues"
+  },
+  "homepage": "https://github.com/MarwanRadwan7/provita#readme",
+  "dependencies": {
+    "@discordjs/builders": "^0.8.2",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "discord-api-types": "^0.24.0",
+    "discord.js": "^13.3.1",
+    "dotenv": "^10.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.44.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.32.2",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.22",
+    "prettier": "^3.0.0"
+  }
+}
