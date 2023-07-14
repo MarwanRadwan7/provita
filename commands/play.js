@@ -1,75 +1,129 @@
+const { CommandInteraction, Interaction } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const {
+  createAudioResource,
   joinVoiceChannel,
   createAudioPlayer,
-  createAudioResource,
   AudioPlayerStatus,
+  NoSubscriberBehavior,
 } = require('@discordjs/voice');
-const { YouTube } = require('youtube-sr');
+const ytdl = require('ytdl-core');
 
-function createVolumeControl(volume) {
-  return {
-    type: 'VolumeTransformer',
-    volume: volume,
-  };
-}
+const yt = require('../apis/youtubeAPI').youtubeSearch;
+const { checkBot } = require('../utils/checkChannels');
+
+const songQueue = new Map();
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('play')
-    .setDescription('Play a song')
+    .setDescription('Play an audio from youtube')
     .addStringOption((option) =>
       option
-        .setName('query')
-        .setDescription('Name of the song')
+        .setName('song')
+        .setDescription('The song to play')
         .setRequired(true),
     ),
 
+  /**
+   * @param {Interaction} interaction
+   */
+
   async execute(interaction) {
-    const query = interaction.options.getString('query');
-
-    // Search for the song on YouTube
-    const searchResults = await YouTube.search(query, { limit: 1 });
-
-    if (!searchResults.length) {
-      await interaction.reply('Song not found.');
-      return;
-    }
-
-    const video = searchResults[0];
-    console.log(video);
-
+    const songQuery = interaction.options.getString('song');
     const voiceChannel = interaction.member.voice.channel;
+
     if (!voiceChannel) {
-      await interaction.reply(
+      return interaction.reply(
         'You need to be in a voice channel to use this command.',
       );
-      return;
     }
+
+    const songs = await yt(songQuery);
+
+    const songURL = songs[0].link;
+    const songTitle = songs[0].title;
+    const songId = ytdl.getVideoID(songURL);
+
+    console.log(songURL, songTitle);
 
     const connection = joinVoiceChannel({
       channelId: voiceChannel.id,
       guildId: voiceChannel.guild.id,
       adapterCreator: voiceChannel.guild.voiceAdapterCreator,
       selfDeaf: false,
+      selfMute: true,
     });
 
-    const audioURL = video.url.replace('watch?v=', 'embed/');
-    const audioPlayer = createAudioPlayer();
-    const audioResource = createAudioResource(audioURL);
-    const volumeControl = createVolumeControl(0.5);
+    const stream = ytdl(songId, {
+      filter: 'audioonly',
+      quality: 'highestaudio',
+    });
 
-    audioResource.volumeControl = volumeControl;
+    const resource = createAudioResource(stream);
+    const player = createAudioPlayer({
+      behaviors: {
+        noSubscriber: NoSubscriberBehavior.Pause,
+      },
+    });
 
-    audioPlayer.play(audioResource);
+    // Check if there is already a song playing or in the queue
+    if (songQueue.has(interaction.guildId)) {
+      const queue = songQueue.get(interaction.guildId);
+      queue.songs.push({ url: songURL, title: songTitle });
+      return interaction.reply({
+        content: `Added to queue: ${songTitle}`,
+        ephemeral: false,
+        fetchReply: false,
+      });
+    }
 
-    connection.subscribe(audioPlayer);
-    await interaction.reply(`Now playing: ${video.title}`);
+    // If no songs in the queue, play the current song
+    const queueConstruct = {
+      voiceChannel,
+      textChannel: interaction.channel,
+      connection,
+      songs: [{ url: songURL, title: songTitle }],
+      volume: 5,
+      playing: true,
+    };
 
-    audioPlayer.on('stateChange', (state) => {
-      if (state.status === AudioPlayerStatus.Idle) {
-        connection.destroy();
+    songQueue.set(interaction.guildId, queueConstruct);
+
+    connection.subscribe(player);
+    player.play(resource);
+
+    player.on(AudioPlayerStatus.Idle, () => {
+      if (songQueue.has(interaction.guildId)) {
+        const queue = songQueue.get(interaction.guildId);
+        queue.songs.shift(); // Remove the first song from the queue
+
+        if (queue.songs.length > 0) {
+          const nextSong = queue.songs[0];
+          const nextStream = ytdl(ytdl.getVideoID(nextSong.url), {
+            filter: 'audioonly',
+            quality: 'highestaudio',
+          });
+          const nextResource = createAudioResource(nextStream);
+
+          player.play(nextResource);
+          interaction.followUp({
+            content: `Now playing: ${songTitle}`,
+            ephemeral: false,
+            fetchReply: false,
+          });
+        } else {
+          // Queue is empty, destroy the connection
+          connection.destroy();
+          songQueue.delete(interaction.guildId);
+        }
       }
+    });
+
+    await interaction.reply({
+      content: `Now playing: ${songTitle}`,
+      ephemeral: false,
+      fetchReply: false,
     });
   },
 };
