@@ -27,11 +27,13 @@
     "@discordjs/rest": "^0.1.0-canary.0",
     "@discordjs/voice": "^0.16.0",
     "discord-api-types": "^0.24.0",
+    "discord-music-player": "^9.1.1",
     "discord.js": "^13.3.1",
     "dotenv": "^10.0.0",
     "libsodium-wrappers": "^0.7.11",
+    "youtube-search": "^1.1.6",
     "youtube-sr": "^4.3.4",
-    "ytdl-core": "^4.11.4"
+    "ytdl-core": "^4.11.5"
   },
   "devDependencies": {
     "eslint": "^8.44.0",
