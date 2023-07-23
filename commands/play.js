@@ -6,11 +6,20 @@ const {
   createAudioPlayer,
   AudioPlayerStatus,
   NoSubscriberBehavior,
+  getVoiceConnection,
+  entersState,
+  VoiceConnectionStatus,
 } = require('@discordjs/voice');
 const ytdl = require('ytdl-core');
 
 const yt = require('../apis/youtubeAPI').youtubeSearch;
-const { checkBot } = require('../utils/checkChannels');
+const { checkSameVoiceChannel } = require('../utils/checkChannels');
+
+function containsLive(sentence) {
+  // Use the "i" flag in the regular expression to perform a case-insensitive search
+  const regex = /\blive\b/i;
+  return regex.test(sentence);
+}
 
 const songQueue = new Map();
 
@@ -39,13 +48,63 @@ module.exports = {
       );
     }
 
+    await interaction.deferReply();
     const songs = await yt(songQuery);
+    let songURL;
+    let songTitle;
+    let i = 0;
 
-    const songURL = songs[0].link;
-    const songTitle = songs[0].title;
-    const songId = ytdl.getVideoID(songURL);
+    if (containsLive(songQuery)) {
+      // console.log('live :))');
+      // while (songs.kind !== 'youtube#video' && i < 10) {
+      //   songURL = songs[i].link;
+      //   songTitle = songs[i].title;
+      //   const liveDetails = (await ytdl.getBasicInfo(songURL)).player_response
+      //     .videoDetails;
+      //   const isLowLatencyLiveStream = liveDetails.isLowLatencyLiveStream;
+      //   const isLiveContent = liveDetails.isLiveContent;
+      //   i++;
+      //   if (isLiveContent && isLowLatencyLiveStream) break;
+      // for (let song of songs) {
+      //   songURL = songs[i].link;
+      //   songTitle = songs[i].title;
+      //   const liveDetails = (await ytdl.getBasicInfo(songURL)).player_response
+      //     .videoDetails;
+      //   const isLowLatencyLiveStream = liveDetails.isLowLatencyLiveStream;
+      //   const isLiveContent = liveDetails.isLiveContent;
+      //   if (
+      //     isLiveContent &&
+      //     song.kind !== 'youtube#video' &&
+      //     i < 10 &&
+      //     isLiveContent &&
+      //     isLowLatencyLiveStream
+      //   )
+      //     continue;
+      //   else break;
+      // }
+      return await interaction.editReply(
+        `Use **/live** command instead to play live audios from youtube`,
+      );
+    } else {
+      for (let song of songs) {
+        //songs.kind !== 'youtube#video' && i < 10
+
+        const isLiveContent = (await ytdl.getBasicInfo(songURL)).player_response
+          .videoDetails.isLive;
+        console.log(isLiveContent);
+        if (!isLiveContent && song.kind !== 'youtube#video') {
+          songURL = song.link;
+          songTitle = song.title;
+          break;
+        }
+      }
+    }
 
     console.log(songURL, songTitle);
+    // console.log(
+    //   (await ytdl.getBasicInfo(songURL)).player_response.videoDetails,
+    // );
+    const songId = ytdl.getVideoID(songURL);
 
     const connection = joinVoiceChannel({
       channelId: voiceChannel.id,
@@ -53,7 +112,10 @@ module.exports = {
       adapterCreator: voiceChannel.guild.voiceAdapterCreator,
       selfDeaf: false,
       selfMute: true,
+      status: 'playing',
     });
+
+    await entersState(connection, VoiceConnectionStatus.Ready, 20_000);
 
     const stream = ytdl(songId, {
       filter: 'audioonly',
@@ -71,7 +133,7 @@ module.exports = {
     if (songQueue.has(interaction.guildId)) {
       const queue = songQueue.get(interaction.guildId);
       queue.songs.push({ url: songURL, title: songTitle });
-      return interaction.reply({
+      return interaction.editReply({
         content: `Added to queue: ${songTitle}`,
         ephemeral: false,
         fetchReply: false,
@@ -103,11 +165,13 @@ module.exports = {
           const nextStream = ytdl(ytdl.getVideoID(nextSong.url), {
             filter: 'audioonly',
             quality: 'highestaudio',
+            begin: '0',
+            liveBuffer: 50000,
           });
           const nextResource = createAudioResource(nextStream);
 
           player.play(nextResource);
-          interaction.followUp({
+          interaction.editReply({
             content: `Now playing: ${songTitle}`,
             ephemeral: false,
             fetchReply: false,
@@ -120,10 +184,12 @@ module.exports = {
       }
     });
 
-    await interaction.reply({
+    await interaction.editReply({
       content: `Now playing: ${songTitle}`,
       ephemeral: false,
       fetchReply: false,
     });
   },
 };
+
+module.exports.songQueue = songQueue;
