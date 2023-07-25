@@ -14,22 +14,22 @@ const {
 } = require('@discordjs/voice');
 const ytdl = require('ytdl-core');
 
-const { songQueue } = require('./play'); // Assuming 'play.js' contains the play command logic
+const { songQueue } = require('../commands/play'); // Assuming 'play.js' contains the play command logic
 const yt = require('../apis/youtubeAPI').youtubeSearch;
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('live')
-    .setDescription('Start playing a live stream from YouTube')
+    .setName('lofi')
+    .setDescription('Play LoFi music.')
     .addStringOption((option) =>
       option
-        .setName('stream')
-        .setDescription('The live stream to play')
-        .setRequired(true),
+        .setName('keywords')
+        .setDescription('genres or keywords if you want'),
     ),
 
   async execute(interaction) {
-    const songQuery = interaction.options.getString('stream');
+    const keywords = interaction.options.getString('keywords') || ``;
+    const songQuery = `lofi live + ${keywords}`;
     const voiceChannel = interaction.member.voice.channel;
 
     if (!voiceChannel) {
@@ -39,39 +39,10 @@ module.exports = {
     }
 
     await interaction.deferReply();
-    // if (containsLive(songQuery)) {
-    //   // console.log('live :))');
-    //   // while (songs.kind !== 'youtube#video' && i < 10) {
-    //   //   songURL = songs[i].link;
-    //   //   songTitle = songs[i].title;
-    //   //   const liveDetails = (await ytdl.getBasicInfo(songURL)).player_response
-    //   //     .videoDetails;
-    //   //   const isLowLatencyLiveStream = liveDetails.isLowLatencyLiveStream;
-    //   //   const isLiveContent = liveDetails.isLiveContent;
-    //   //   i++;
-    //   //   if (isLiveContent && isLowLatencyLiveStream) break;
-
-    //   // }
-    //   return await interaction.editReply(
-    //     `Use **/live** command instead to play live audios from youtube`,
-    //   );
-    // } else {
-    //   for (let song of songs) {
-    //     //songs.kind !== 'youtube#video' && i < 10
-    //     songURL = song.link;
-    //     songTitle = song.title;
-    //     const isLiveContent = (await ytdl.getBasicInfo(songURL)).player_response
-    //       .videoDetails.isLive;
-    //     console.log(isLiveContent);
-    //     if (isLiveContent && song.kind !== 'youtube#video') continue;
-    //     else break;
-    //   }
-    // }
     try {
       const songs = await yt(songQuery);
       let songURL;
       let songTitle;
-      console.log(songs);
 
       for (let song of songs) {
         songURL = song.link;
@@ -90,10 +61,7 @@ module.exports = {
           continue;
         else break;
       }
-      console.log(songURL, songTitle);
-      // console.log(
-      //   (await ytdl.getBasicInfo(songURL)).player_response.videoDetails,
-      // );
+
       const songId = ytdl.getVideoID(songURL);
       const connection = joinVoiceChannel({
         channelId: voiceChannel.id,
@@ -104,11 +72,11 @@ module.exports = {
         status: 'playing',
       });
 
-      await entersState(connection, VoiceConnectionStatus.Ready, 20_000);
+      await entersState(connection, VoiceConnectionStatus.Ready, 200000);
 
       const stream = ytdl(songId, {
         filter: 'audioandvideo',
-        quality: 'lowest',
+        quality: 'highest',
         liveBuffer: 10000000,
         // format: {
         //   // isLive: true,
@@ -123,6 +91,8 @@ module.exports = {
         },
       });
 
+      // console.log(resource);
+
       connection.subscribe(player);
       player.play(resource);
       songQueue.set(interaction.guildId, {
@@ -133,7 +103,7 @@ module.exports = {
       });
 
       await interaction.editReply({
-        content: `Now playing the live stream: ${songTitle}`,
+        content: `Now playing: ${songTitle}`,
         ephemeral: false,
         fetchReply: false,
       });
