@@ -9,8 +9,6 @@
 
 <center><img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=200&section=header&text=PROVITA&fontSize=80&fontAlignY=35&animation=twinkling&fontColor=gradient" /></center>
 
-<br />
-
 <!-- PROJECT LOGO -->
 <p align="center">
   <a href="https://github.com/MarwanRadwan7/provita">
