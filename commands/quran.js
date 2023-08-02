@@ -1,4 +1,3 @@
-const { CommandInteraction } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const { checkVoiceChannel } = require('../utils/checkVoiceChannel');
@@ -6,25 +5,27 @@ const { embedMessage } = require('../utils/embedHandler');
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('play')
-    .setDescription('Play an audio from youtube')
+    .setName('quran')
+    .setDescription('Listen to quran')
     .addStringOption((option) =>
       option
-        .setName('keywords')
-        .setDescription('Keywords of what the audio you want to play.')
+        .setName('sheikh')
+        .setDescription('Name of the  sheikh you want to listen to.')
+        .setRequired(true),
+    )
+    .addStringOption((option) =>
+      option
+        .setName('surrah')
+        .setDescription('Name of the surrah you want to listen to.')
         .setRequired(true),
     ),
-
-  /**
-   *
-   * @param {CommandInteraction} interaction
-   * @returns {Promise<void>}
-   */
 
   async execute(interaction) {
     const { distube } = interaction.client;
 
-    const query = interaction.options.getString('keywords');
+    const sheikh = interaction.options.getString('sheikh');
+    const surrah = interaction.options.getString('surrah');
+    const query = `"quran" sheikh ${sheikh} surrah ${surrah}`;
 
     if (!query) {
       return interaction.reply('Please provide a song to play.');
