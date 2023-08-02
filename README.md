@@ -12,7 +12,6 @@
 <br />
 
 <!-- PROJECT LOGO -->
-<br />
 <p align="center">
   <a href="https://github.com/MarwanRadwan7/provita">
     <img src="https://cdn.discordapp.com/attachments/1136037893236850690/1136267805528969216/Provita_Logo.png" style="border-radius:50%" alt="Pbot-plus" width="200" height="200">
