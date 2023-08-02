@@ -1,8 +1,14 @@
 require('dotenv').config();
 const fs = require('fs');
 const { Client, Collection, Intents } = require('discord.js');
+const { DisTube } = require('distube');
+
+const { connectToMongo } = require('./utils/mongoConnection');
 
 const token = process.env.DISCORD_TOKEN;
+
+// Connect to Database
+connectToMongo();
 
 const client = new Client({
   intents: [
@@ -15,9 +21,20 @@ const client = new Client({
     Intents.FLAGS.GUILD_INTEGRATIONS, // Required for integration-related events
     Intents.FLAGS.GUILD_WEBHOOKS, // Required for webhook-related events
     Intents.FLAGS.GUILD_PRESENCES, // Required for presence-related events
-    Intents.FLAGS.GUILD_VOICE_STATES,
+    Intents.FLAGS.GUILD_VOICE_STATES, // Required for information about changes in VCs
   ],
 });
+
+const distube = new DisTube(client, {
+  emitNewSongOnly: true,
+  leaveOnFinish: true,
+  youtubeDL: false,
+  ytdlOptions: {
+    quality: 'highestaudio',
+  },
+  searchSongs: 10,
+});
+client.distube = distube;
 
 // Add commands to the client
 client.commands = new Collection();
@@ -33,28 +50,16 @@ for (const file of commandFiles) {
   client.commands.set(command.data.name, command);
 }
 
-// do this once when bot logs in
-client.once('ready', () => {
-  console.log('Bot has been logged in');
-});
+// Event files
+const eventFiles = fs
+  .readdirSync('./events')
+  .filter((file) => file.endsWith('.js'));
 
-// Dynamic command handler - listens for interaction create event
-client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isCommand()) return;
-
-  const command = client.commands.get(interaction.commandName);
-
-  if (!command) return;
-
-  try {
-    await command.execute(interaction);
-  } catch (error) {
-    console.error(error);
-    await interaction.reply({
-      content: 'There was an error processing your command',
-      ephemeral: true,
-    });
-  }
-});
+for (const file of eventFiles) {
+  const event = require(`./events/${file}`);
+  if (event.once)
+    client.once(event.name, (...args) => event.execute(...args, client));
+  else client.on(event.name, (...args) => event.execute(...args, client));
+}
 
 client.login(token);
