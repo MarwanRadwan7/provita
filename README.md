@@ -78,7 +78,7 @@ Clone the repo by running
 git clone https://github.com/MarwanRadwan7/provita.git
 ```
 
-### After cloning Fill all requirement in `.env` **(rename `.env.example` to `.env`)**, then run
+### After cloning Fill all requirement in `.env`, then run.
 
 ```bash
 npm install
