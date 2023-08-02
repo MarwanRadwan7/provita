@@ -14,10 +14,10 @@
 <!-- PROJECT LOGO -->
 <p align="center">
   <a href="https://github.com/MarwanRadwan7/provita">
-    <img src="https://cdn.discordapp.com/attachments/1136037893236850690/1136267805528969216/Provita_Logo.png" style="border-radius:50%" alt="Pbot-plus" width="200" height="200">
+    <img src="https://cdn.discordapp.com/attachments/1136037893236850690/1136279691058225192/rounded_corners.jpg" style="border-radius:50%" alt="Provita" width="200" height="200">
   </a>
 
-  <h3 align="center">Discord-Bot</h3>
+  <h3 align="center">PROVITA</h3>
 
   <p align="center">
     Provita is simple discord bot that helps you focus and relax to study with your friends powered with AI by unofficial <a href="https://github.com/EvanZhouDev/bard-ai">Bard API</a> your server by providing useful commands like playing quran, Lofi and background noise.
