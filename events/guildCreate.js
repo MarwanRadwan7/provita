@@ -1,17 +1,8 @@
-const { Guild, Client } = require('discord.js');
-const { join } = require('path');
-const sqlite3 = require('sqlite3').verbose();
-const dbPath = join(__dirname, '../data/guildChannel.db');
-
-const { dbGetAsync, dbRunAsync } = require('../utils/dbAsync');
+// Import the Mongoose model for the guild channels
+const { GuildChannel } = require('../models/GuildChannel');
 
 module.exports = {
   name: 'guildCreate',
-  once: true,
-
-  /**
-   * @param {Guild} guild
-   */
 
   async execute(guild) {
     console.log(`Joined new guild: ${guild.name}`);
@@ -19,19 +10,6 @@ module.exports = {
     const categoryName = '✨PROVITA✨';
     const channelName = 'ask-provita';
 
-    // Connect to the SQLite database or create one if it doesn't exist
-    const db = new sqlite3.Database(dbPath, (err) => {
-      if (err) {
-        console.error('Error connecting to the database:', err);
-      } else {
-        console.log('Connected to the SQLite database.');
-        // Create the table if it doesn't exist
-        db.run(`CREATE TABLE IF NOT EXISTS guild_channels (
-        guild_id TEXT,
-        channel_id TEXT,
-        server_name TEXT)`);
-      }
-    });
     try {
       // Find or create the category named "provita"
       const category =
@@ -41,15 +19,14 @@ module.exports = {
         ) ||
         (await guild.channels.create(categoryName, { type: 'GUILD_CATEGORY' }));
 
-      // Check if the guild already has a stored channel ID in the database
-      const query = `SELECT channel_id FROM guild_channels WHERE guild_id = ? LIMIT 1 `;
-      const row = await dbGetAsync(db, query, [guild.id]);
+      // Check if the guild already has a stored channel in the database
+      const guildChannel = await GuildChannel.findOne({ guildId: guild.id });
 
       let channel;
 
-      if (row && row.channel_id) {
+      if (guildChannel && guildChannel.channelId) {
         // If the guild has a stored channel ID, use it to fetch the channel
-        channel = guild.channels.cache.get(row.channel_id);
+        channel = guild.channels.cache.get(guildChannel.channelId);
       }
 
       if (!channel) {
@@ -59,16 +36,18 @@ module.exports = {
           parent: category,
         });
 
-        // Store the created channel ID in the database
-        const insertQuery = `INSERT OR REPLACE INTO guild_channels (guild_id, channel_id, server_name) VALUES (?, ?, ?)`;
-        await dbRunAsync(db, insertQuery, [guild.id, channel.id, guild.name]);
+        // Store the created channel in the database
+        await GuildChannel.findOneAndUpdate(
+          { guildId: guild.id },
+          { channelId: channel.id, guildName: guild.name },
+          { upsert: true, new: true },
+        );
       }
 
-      console.log(
-        `Channel ${channelName} created in ${categoryName} category.`,
-      );
-
-      // Set up a message event handler to respond to messages in the channel
+      // Make a welcome message and pin it to provita message channel
+      const welcomeMessage = `Hello, 👋🏻 I am Provita, a Discord bot that can help you study and focus with your friends, powered by AI. You can chat with me in the **ask-provita** channel or use my slash commands in all text channels. For help, use the \`/help\` command and see what I can do 😊. If the **ask-provita** channel is deleted, then invite me to the server again. Have a nice day ❤️.`;
+      const sendWelcomeMessage = await channel.send(welcomeMessage);
+      await sendWelcomeMessage.pin();
     } catch (error) {
       console.error('Error creating channel:', error);
     }

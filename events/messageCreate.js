@@ -1,19 +1,11 @@
-const { Client, Message } = require('discord.js');
-const { join } = require('path');
-const sqlite3 = require('sqlite3').verbose();
-
-const dbPath = join(__dirname, '../data/guildChannel.db');
+require('dotenv').config();
 const { init, Chat } = require('../apis/bardAPI');
-const { dbGetAsync, dbRunAsync } = require('../utils/dbAsync');
+const { UserSession } = require('../models/userSession');
 
 const cookies = process.env.BARD_KEY;
 
 module.exports = {
   name: 'messageCreate',
-
-  /**
-   * @param {Message} message
-   */
 
   async execute(message) {
     // Check if the message is sent by a bot, if it is, do nothing
@@ -22,28 +14,11 @@ module.exports = {
     const { guild } = message;
     const categoryName = '✨PROVITA✨';
     const channelName = 'ask-provita';
-    const thankingRegex = /\b(thank\s*you|thx|thanks?|thank\s+u)\b/i;
+    const thankingRegex =
+      /thank(s| you| ya| u| u so much| u very much| you very much| you so much|\syou\s)/i;
     const salutingRegex = /\b(hello|hi|hey)\b/i;
 
     try {
-      // Connect to the SQLite database
-      const db = new sqlite3.Database(dbPath, (err) => {
-        if (err) console.error('Error connecting to the database:', err);
-        else {
-          // Create a table for user's sessions if it doesn't exist
-          db.run(`
-            CREATE TABLE IF NOT EXISTS user_session (
-              user_id TEXT,
-              conversationID TEXT,
-              responseID TEXT ,
-              choiceID TEXT,
-              _reqID INTEGER,
-              user_username TEXT
-            )
-          `);
-        }
-      });
-
       // Check if the message is sent in the provita channel
       const category = guild.channels.cache.find(
         (channel) =>
@@ -54,11 +29,12 @@ module.exports = {
         return;
       }
 
-      // Get the session info from the database using async/await
-      const query = `SELECT user_id, conversationID, responseID, choiceID, _reqID FROM user_session WHERE user_id = ?  LIMIT 1 `;
+      // Get the session info from MongoDB using Mongoose
       let userData;
       try {
-        userData = await dbGetAsync(db, query, [message.author.id]);
+        userData = await UserSession.findOne({
+          user_id: message.author.id,
+        }).exec();
       } catch (error) {
         console.error('Error querying database:', error);
       }
@@ -86,20 +62,17 @@ module.exports = {
         response = await conversation.ask(question);
         userData = await conversation.export();
 
-        // Store session data in the database
-        try {
-          const insertQuery = `INSERT OR REPLACE INTO user_session (user_id , conversationID , responseID , choiceID , _reqID , user_username) VALUES (?,?,?,?,?,?)`;
-          await dbRunAsync(db, insertQuery, [
-            message.author.id,
-            userData.conversationID,
-            userData.responseID,
-            userData.choiceID,
-            userData._reqID,
-            message.author.username,
-          ]);
-        } catch (error) {
-          console.error('Error inserting data into database:', error);
-        }
+        // Create a new user session in MongoDB
+        const newUserSession = new UserSession({
+          user_id: message.author.id,
+          conversationID: userData.conversationID,
+          responseID: userData.responseID,
+          choiceID: userData.choiceID,
+          _reqID: userData._reqID,
+          user_username: message.author.username,
+        });
+
+        await newUserSession.save();
       } else {
         await init(cookies);
         const conversation = new Chat({
@@ -111,25 +84,13 @@ module.exports = {
         response = await conversation.ask(question);
         const updatedSession = await conversation.export();
 
-        // Store session data in the database
-        try {
-          const updateQuery = `
-          UPDATE user_session
-          SET conversationID = ?,
-              responseID = ?,
-              choiceID = ?,
-              _reqID = ?
-          WHERE user_id = ?`;
-          await dbRunAsync(db, updateQuery, [
-            updatedSession.conversationID,
-            updatedSession.responseID,
-            updatedSession.choiceID,
-            updatedSession._reqID,
-            message.author.id,
-          ]);
-        } catch (error) {
-          console.error('Error updating data in the database:', error);
-        }
+        // Update the existing user session in MongoDB
+        userData.conversationID = updatedSession.conversationID;
+        userData.responseID = updatedSession.responseID;
+        userData.choiceID = updatedSession.choiceID;
+        userData._reqID = updatedSession._reqID;
+
+        await userData.save();
       }
 
       await message.reply({
@@ -137,13 +98,6 @@ module.exports = {
         attachments: {
           ephemeral: true,
         },
-      });
-
-      // Close the database connection
-      db.close((err) => {
-        if (err) {
-          console.error('Error closing database connection:', err);
-        }
       });
     } catch (error) {
       console.error('Error creating channel:', error);
