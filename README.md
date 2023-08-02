@@ -24,6 +24,11 @@
     <a href="https://github.com/MarwanRadwan7/provita/issues">Report Bug</a>
     ·
     <a href="https://github.com/MarwanRadwan7/provita/issues">Request Feature</a>
+    <br>
+    <br>
+  <a href = "https://discord.com/api/oauth2/authorize?client_id=1127302961660436582&permissions=8&scope=bot%20applications.commands">
+  <img src="https://cdn.discordapp.com/attachments/1096186206615785525/1136361183679610990/image0.jpg" width="50%" height="50%">
+  </a>
   </p>
 </p>
 
@@ -61,6 +66,7 @@
 
 - NodeJs v16+
 - Discord.js v13 [Discord.js Docs](https://old.discordjs.dev/#/docs/discord.js/v13/general/welcome).
+- DisTube package v3.3.4. [Docs](https://distube.js.org/#/docs/DisTube/v3/general/welcome)
 - Discord Token. Get it from [Discord Developers Portal](https://discord.com/developers/applications)
 - Mongo Database URL. Get it from [MongoDB](https://cloud.mongodb.com/v2/635277bf9f5c7b5620db28a4#clusters)
 - FFMPEG installed. [Link](https://www.ffmpeg.org/download.html)
@@ -98,10 +104,10 @@ node index.js
 [contributors-shield]: https://img.shields.io/github/contributors/MarwanRadwan7/provita.svg?style=for-the-badge
 [contributors-url]: https://github.com/MarwanRadwan7/provita/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/MarwanRadwan7/provita.svg?style=for-the-badge
-[forks-url]: https://github.com/MarwanRadwan7/provita/network/members
+[forks-url]: https://github.com/MarwanRadwan7/provita/forks
 [stars-shield]: https://img.shields.io/github/stars/MarwanRadwan7/provita.svg?style=for-the-badge
 [stars-url]: https://github.com/MarwanRadwan7/provita/stargazers
 [issues-shield]: https://img.shields.io/github/issues/MarwanRadwan7/provita.svg?style=for-the-badge
 [issues-url]: https://github.com/MarwanRadwan7/provita/issues
 [license-shield]: https://img.shields.io/github/license/MarwanRadwan7/provita.svg?style=for-the-badge
-[license-url]: https://github.com/MarwanRadwan7/provita/blob/master/LICENSE
+[license-url]: https://github.com/MarwanRadwan7/provita/blob/main/LICENSE
