@@ -36,7 +36,7 @@
 
 ### <img src="https://cdn.discordapp.com/emojis/1055803759831294013.png" width="20px" height="20px"> 》Notice
 
-> Discord-Bot is a multipurpose Discord bot base in [Discord.js](https://github.com/Discordjs/discordjs)
+> Provita is a multipurpose Discord bot base in [Discord.js](https://github.com/Discordjs/discordjs)
 > If you like this repository, feel free to leave a star ⭐ to motivate me!
 
 <!-- ABOUT THE PROJECT -->
@@ -54,8 +54,6 @@
 - `/quran "sheikh" "surrah"` -> Plays Holy QURAN.
 - `/lofi "keywords"` -> Plays LoFi music.
 - `/noise "genre"` -> Play this background noise helps you to focus.
-- `/play "keywords"` -> Plays the requested video in voice channel you are in.
-- `/play https://www.youtube.com/watch?v=oCX21DHd0M4&pp=ygUVcmFhZCBrdXJkaSBzdXJhaCBrYWhm` -> Play a youtube audio directly.
 - `/pause` -> Toggle to pause/resume currently playing audio.
 - `/next` -> Skip currently playing audio.
 - `/queue` -> The list of current queue.
