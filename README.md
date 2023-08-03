@@ -18,7 +18,7 @@
   <h3 align="center">PROVITA</h3>
 
   <p align="center">
-    Provita is simple discord bot that helps you focus and relax to study with your friends powered with AI by unofficial <a href="https://github.com/EvanZhouDev/bard-ai">Bard API</a> your server by providing useful commands like playing quran, Lofi and background noise.
+    Provita is a simple discord bot that helps you focus and relax to study with your friends powered with AI by the unofficial <a href="https://github.com/EvanZhouDev/bard-ai">Bard API</a> for giving you and your server useful answers and providing useful commands like playing quran, Lofi and background noise.
     <br />
     <br />
     <a href="https://github.com/MarwanRadwan7/provita/issues">Report Bug</a>
@@ -65,6 +65,7 @@
 - NodeJs v16+
 - Discord.js v13 [Discord.js Docs](https://old.discordjs.dev/#/docs/discord.js/v13/general/welcome).
 - DisTube package v3.3.4. [Docs](https://distube.js.org/#/docs/DisTube/v3/general/welcome)
+- libsodium-wrappers package. [Package link](https://www.npmjs.com/package/libsodium-wrappers)
 - Discord Token. Get it from [Discord Developers Portal](https://discord.com/developers/applications)
 - Mongo Database URL. Get it from [MongoDB](https://cloud.mongodb.com/v2/635277bf9f5c7b5620db28a4#clusters)
 - FFMPEG installed. [Link](https://www.ffmpeg.org/download.html)
@@ -134,9 +135,15 @@ ENV = DEVELOPMENT
 MONGO_URL = Your MongoDB URL connection
 ```
 
+## <img src="https://cdn.discordapp.com/emojis/1028680849195020308.png" width="25px" height="25px">》To-Do
+
+- [x] Host the bot.
+- [ ] More /commands
+- [ ] Upgrade the Ai-API and move to palm api.
+
 ## <img src="https://cdn.discordapp.com/emojis/1036083490292244493.png" width="15px" height="15px">》Support Me
 
-<p align = "center"><p>If you liked this repository, feel free to leave a star and support me on BMC.😊
+<p align = "center"><p>If you liked this repository, feel free to leave a star and support me on BMC. 😊
 </p>
 <a  href="https://www.buymeacoffee.com/marwan.swe" target="_blank" > 
 <img src="https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-3.svg" alt="SVG Image">
