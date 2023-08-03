@@ -91,11 +91,57 @@ To start your bot
 node index.js
 ```
 
+To start your bot in development mode
+
+```js
+npm run devStart index
+```
+
+## <img src="https://cdn.discordapp.com/emojis/859424401186095114.png" width="20px" height="20px">》Technical Documentation
+
+### The project structure:
+
+```plaintext
+Provita/
+├── commands/
+│   ├── ask.js
+│   └── ... (other command handlers)
+├── events/
+│   ├── ask.js
+│   └── ... (other event handlers)
+├── utils/
+│   ├── mongoConnection.js
+│   └── ... (other helper functions)
+├── models/
+│   ├── userSession.js
+│   └── GuildChannel.js
+├── apis/
+│   └── bardAPI.js
+├── package.json
+├── index.js
+├── .env
+└── .gitignore
+```
+
+#### The `.env` file should look like this:
+
+```env
+DISCORD_TOKEN = Your bot Token
+CLIENT_ID = Client ID
+GUILD_ID  = Your Server ID
+BARD_KEY  = `__Secure-1PSID` Cookie
+ENV = DEVELOPMENT
+MONGO_URL = Your MongoDB URL connection
+```
+
 ## <img src="https://cdn.discordapp.com/emojis/1036083490292244493.png" width="15px" height="15px">》Support Me
 
-<a href="https://www.buymeacoffee.com/marwan.swe" target="_blank" > 
-    <img src="https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-3.svg" alt="SVG Image">
+<p align = "center"><p>If you liked this repository, feel free to leave a star and support me on BMC.😊
+</p>
+<a  href="https://www.buymeacoffee.com/marwan.swe" target="_blank" > 
+<img src="https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-3.svg" alt="SVG Image">
 </a>
+</p>
 
 [version-shield]: https://img.shields.io/github/package-json/v/MarwanRadwan7/provita?style=for-the-badge
 [version-url]: https://github.com/MarwanRadwan7/provita
