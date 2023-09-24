@@ -24,7 +24,7 @@
     <br>
     <br>
   <a href = "https://discord.com/api/oauth2/authorize?client_id=1127302961660436582&permissions=8&scope=bot%20applications.commands">
-  <img src="https://cdn.discordapp.com/attachments/1096186206615785525/1136361183679610990/image0.jpg" width="50%" height="50%">
+  <img src="https://cdn.discordapp.com/attachments/1096186206615785525/1136361183679610990/image0.jpg" width="20%" height="20%">
   </a>
   </p>
 </p>
